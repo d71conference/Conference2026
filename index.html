@@ -204,13 +204,14 @@
                       {navItems.map((item) => (
                         <NavLink key={item.name} item={item} />
                       ))}
-                      <button
+                      <a
                         onClick={() => setPage('Register')} // Assuming 'Register' is a future page or modal
                         style={{ backgroundColor: COLORS.yellow, color: COLORS.blue }}
                         className="ml-4 px-4 py-2 rounded-md text-sm font-bold shadow-md hover:opacity-90 transition-opacity"
+                        href="https://forms.d71toastmasters.org/t/jbk6HTHbjYus" target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-[#F2DF74] to-yellow-300 text-[#004165] font-bold py-2 px-4 rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300">
                       >
-                        REGISTER NOW
-                      </button>
+                        REGISTER NOW 
+                      </a>
                     </div>
                   </div>
 
