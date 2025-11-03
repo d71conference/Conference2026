@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D71 Conference 2026</title>
+    <!-- 1. Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Load React & ReactDOM -->
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    
+    <!-- 3. Load Babel to transpile JSX in the browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Simple fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Basic styles to ensure root takes height */
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        #root {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <!-- This is where the React app will be rendered -->
+    <div id="root"></div>
+
+    <!-- 4. Start React script (must be type="text/babel") -->
+    <script type="text/babel">
+        // De-structure from global React object
+        const { useState, useEffect } = React;
+
+        // --- SVG Icon Components (Replaces lucide-react) ---
+        
+        const IconWrapper = ({ size, className, children }) => (
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width={size} 
+                height={size} 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className={className}
+            >
+                {children}
+            </svg>
+        );
+
+        const MapPin = ({ size = 24, className = "" }) => (
+            <IconWrapper size={size} className={className}>
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+            </IconWrapper>
+        );
+
+        const Calendar = ({ size = 24, className = "" }) => (
+            <IconWrapper size={size} className={className}>
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
+            </IconWrapper>
+        );
+
+        const Users = ({ size = 24, className = "" }) => (
+            <IconWrapper size={size} className={className}>
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </IconWrapper>
+        );
+
+        const Award = ({ size = 24, className = "" }) => (
+            <IconWrapper size={size} className={className}>
+                <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+            </IconWrapper>
+        );
+
+        const Network = ({ size = 24, className = "" }) => (
+            <IconWrapper size={size} className={className}>
+                <rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/>
+            </IconWrapper>
+        );
+
+        const Menu = ({ size = 24, className = "" }) => (
+            <IconWrapper size={size} className={className}>
+                <line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="18" y2="18"/>
+            </IconWrapper>
+        );
+
+        const X = ({ size = 24, className = "" }) => (
+            <IconWrapper size={size} className={className}>
+                <line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/>
+            </IconWrapper>
+        );
+
+        const ChevronDown = ({ size = 24, className = "" }) => (
+            <IconWrapper size={size} className={className}>
+                <polyline points="6 9 12 15 18 9"/>
+            </IconWrapper>
+        );
+
+        const PlayCircle = ({ size = 24, className = "" }) => (
+            <IconWrapper size={size} className={className}>
+                <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>
+            </IconWrapper>
+        );
+
+        const Radio = ({ size = 24, className = "" }) => (
+            <IconWrapper size={size} className={className}>
+                <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 16.2c2.3-2.3 2.3-6.1 0-8.5"/><path d="M19.1 19.1c3.9-3.9 3.9-10.2 0-14.1"/>
+            </IconWrapper>
+        );
+
+        const BookOpen = ({ size = 24, className = "" }) => (
+            <IconWrapper size={size} className={className}>
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </IconWrapper>
+        );
+
+        // --- Original React App Code (with imports/exports removed) ---
+
+        // --- Color Palette (Based on Toastmasters Branding) ---
+        const COLORS = {
+          maroon: '#6F263D', // Toastmasters Maroon
+          blue: '#004165',   // Toastmasters Loyal Blue
+          yellow: '#F2DF74', // Toastmasters Happy Yellow
+          gray: '#A9A9A9',   // Toastmasters Cool Gray
+          background: '#f8f9fa',
+          text: '#333333',
+        };
+
+        // --- Reusable Components ---
+
+        /**
+         * Header and Navigation
+         * Handles mobile and desktop navigation
+         */
+        const Header = ({ page, setPage }) => {
+          const [isMenuOpen, setIsMenuOpen] = useState(false);
+          
+          const navItems = [
+            { name: 'Home', page: 'Home' },
+            { name: 'Agenda', page: 'Agenda' },
+            { name: 'Contests', page: 'Contests' },
+            { name: 'Venue & Travel', page: 'Venue' },
+            { name: 'Volunteer', page: 'Volunteer' },
+            { name: 'FAQ', page: 'FAQ' },
+          ];
+
+          const NavLink = ({ item }) => (
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setPage(item.page);
+                setIsMenuOpen(false);
+              }}
+              className={`px-3 py-2 rounded-md text-sm font-medium ${
+                page === item.page
+                  ? 'text-white'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              } ${isMenuOpen ? 'block w-full text-left' : ''}`}
+            >
+              {item.name}
+            </a>
+          );
+
+          return (
+            <nav style={{ backgroundColor: COLORS.blue }} className="shadow-lg">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-between h-20">
+                  {/* Logo / Title */}
+                  <div className="flex-shrink-0">
+                    <a
+                      href="#"
+                      onClick={(e) => { e.preventDefault(); setPage('Home'); }}
+                      className="text-white flex items-center"
+                    >
+                      <Award size={32} className="mr-2"/>
+                      <span className="font-bold text-xl">D71 Conference 2026</span>
+                    </a>
+                  </div>
+
+                  {/* Desktop Nav */}
+                  <div className="hidden md:block">
+                    <div className="ml-10 flex items-baseline space-x-4">
+                      {navItems.map((item) => (
+                        <NavLink key={item.name} item={item} />
+                      ))}
+                      <button
+                        onClick={() => setPage('Register')} // Assuming 'Register' is a future page or modal
+                        style={{ backgroundColor: COLORS.yellow, color: COLORS.blue }}
+                        className="ml-4 px-4 py-2 rounded-md text-sm font-bold shadow-md hover:opacity-90 transition-opacity"
+                      >
+                        REGISTER NOW
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Mobile Menu Button */}
+                  <div className="md:hidden">
+                    <button
+                      onClick={() => setIsMenuOpen(!isMenuOpen)}
+                      className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                    >
+                      {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mobile Menu */}
+              {isMenuOpen && (
+                <div className="md:hidden">
+                  <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    {navItems.map((item) => (
+                      <NavLink key={item.name} item={item} />
+                    ))}
+                    <button
+                      onClick={() => setPage('Register')}
+                      style={{ backgroundColor: COLORS.yellow, color: COLORS.blue }}
+                      className="w-full mt-2 px-4 py-2 rounded-md text-sm font-bold shadow-md hover:opacity-90 transition-opacity"
+                    >
+                      REGISTER NOW
+                    </button>
+                  </div>
+                </div>
+              )}
+            </nav>
+          );
+        };
+
+        /**
+         * Countdown Timer Component
+         */
+        const CountdownTimer = () => {
+          const calculateTimeLeft = () => {
+            const difference = +new Date('2026-05-08T00:00:00') - +new Date();
+            let timeLeft = {};
+
+            if (difference > 0) {
+              timeLeft = {
+                days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+                hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+                minutes: Math.floor((difference / 1000 / 60) % 60),
+                seconds: Math.floor((difference / 1000) % 60),
+              };
+            }
+            return timeLeft;
+          };
+
+          const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+          useEffect(() => {
+            const timer = setTimeout(() => {
+              setTimeLeft(calculateTimeLeft());
+            }, 1000);
+            return () => clearTimeout(timer);
+          });
+
+          const TimerBox = ({ value, label }) => (
+            <div 
+              className="flex flex-col items-center justify-center rounded-lg w-24 h-24 sm:w-28 sm:h-28"
+              style={{ backgroundColor: COLORS.blue, color: 'white' }}
+            >
+              <span className="text-3xl sm:text-5xl font-bold">{value}</span>
+              <span className="text-sm uppercase">{label}</span>
+            </div>
+          );
+
+          return (
+            <div className="flex justify-center gap-2 sm:gap-4">
+              {timeLeft.days !== undefined ? (
+                <>
+                  <TimerBox value={timeLeft.days} label="Days" />
+                  <TimerBox value={timeLeft.hours} label="Hours" />
+                  <TimerBox value={timeLeft.minutes} label="Minutes" />
+                  <TimerBox value={timeLeft.seconds} label="Seconds" />
+                </>
+              ) : (
+                <span className="text-2xl font-bold" style={{ color: COLORS.maroon }}>The event has started!</span>
+              )}
+            </div>
+          );
+        };
+
+        /**
+         * Accordion Item for FAQ and Contests
+         */
+        const AccordionItem = ({ title, children }) => {
+          const [isOpen, setIsOpen] = useState(false);
+          return (
+            <div className="border-b border-gray-200">
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex justify-between items-center w-full py-5 px-2 text-left"
+              >
+                <span className="text-lg font-semibold" style={{ color: COLORS.blue }}>{title}</span>
+                <ChevronDown
+                  size={24}
+                  className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                  style={{ color: COLORS.blue }}
+                />
+              </button>
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                }`}
+              >
+                <div className="p-5 pt-0 text-gray-700">{children}</div>
+              </div>
+            </div>
+          );
+        };
+
+        /**
+         * Footer Component
+         */
+        const Footer = () => (
+          <footer className="p-8" style={{ backgroundColor: COLORS.blue, color: 'white' }}>
+            <div className="max-w-7xl mx-auto text-center">
+              <p>&copy; {new Date().getFullYear()} Toastmasters District 71. All rights reserved.</p>
+              <p className="text-sm text-gray-300 mt-2">
+                This website is for the District 71 Conference 2026 in Tralee, Co. Kerry.
+              </p>
+              <p className="text-xs text-gray-400 mt-4">
+                Toastmasters International and its logo are trademarks of Toastmasters International.
+              </p>
+            </div>
+          </footer>
+        );
+
+        // --- Page Components ---
+
+        /**
+         * Home Page
+         */
+        const HomePage = ({ setPage }) => (
+          <div className="animate-fade-in">
+            {/* Hero Section */}
+            <div className="relative h-[60vh] min-h-[400px] bg-gray-800 text-white overflow-hidden">
+              {/* Background Image Placeholder */}
+              <img
+                src="https://placehold.co/1600x900/444/999?text=Tralee+Landscape"
+                alt="Tralee Landscape"
+                className="absolute inset-0 w-full h-full object-cover opacity-30"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+              
+              <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center text-center">
+                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight drop-shadow-md">
+                  Experience the Magic
+                </h1>
+                <h2 className="text-3xl md:text-5xl font-semibold tracking-tight" style={{ color: COLORS.yellow }}>
+                  District 71 Conference 2026
+                </h2>
+                <p className="mt-4 text-lg md:text-2xl max-w-3xl mx-auto drop-shadow">
+                  Join us in Tralee for a weekend of inspiration, competition, and connection.
+                </p>
+                
+                {/* Video Player */}
+                <div className="mt-8">
+                  <video 
+                    className="relative bg-black rounded-lg shadow-2xl w-full max-w-xl mx-auto h-64 border-2 border-gray-600"
+                    controls 
+                    poster="https://placehold.co/800x450/111/555?text=Conference+Promo+Video"
+                    src="https://www.therosehotel.com/files/videos/conference.mp4"
+                    onError={(e) => {
+                      // Fallback in case the video URL is broken or CORS protected
+                      e.target.style.display = 'none';
+                      const fallback = document.createElement('div');
+                      fallback.className = "relative bg-black rounded-lg shadow-2xl w-full max-w-xl mx-auto h-64 border-2 border-gray-600 flex items-center justify-center text-white p-4 text-center";
+                      fallback.innerHTML = 'Video could not be loaded. This might be due to a network issue or server restrictions. <br/><br/> Video URL: https://www.therosehotel.com/files/videos/conference.mp4';
+                      e.target.parentNode.appendChild(fallback);
+                    }}
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              </div>
+            </div>
+
+            {/* Key Info Block */}
+            <section className="py-16" style={{ backgroundColor: COLORS.background }}>
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                  <div className="p-6 bg-white rounded-lg shadow-lg">
+                    <Calendar size={48} className="mx-auto" style={{ color: COLORS.maroon }} />
+                    <h3 className="mt-4 text-2xl font-semibold">WHEN</h3>
+                    <p className="mt-2 text-lg text-gray-700">8th, 9th & 10th May 2026</p>
+                  </div>
+                  <div className="p-6 bg-white rounded-lg shadow-lg">
+                    <MapPin size={48} className="mx-auto" style={{ color: COLORS.maroon }} />
+                    <h3 className="mt-4 text-2xl font-semibold">WHERE</h3>
+                    <p className="mt-2 text-lg text-gray-700">The Rose Hotel, Tralee, Co. Kerry</p>
+                  </div>
+                  <div className="p-6 bg-white rounded-lg shadow-lg">
+                    <Users size={48} className="mx-auto" style={{ color: COLORS.maroon }} />
+                    <h3 className="mt-4 text-2xl font-semibold">WHO</h3>
+                    <p className="mt-2 text-lg text-gray-700">Toastmasters from across D71</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Countdown Timer */}
+            <section className="py-20 bg-white">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 className="text-4xl font-bold mb-10" style={{ color: COLORS.blue }}>
+                  The Countdown is On!
+                </h2>
+                <CountdownTimer />
+              </div>
+            </section>
+
+            {/* Why Attend? */}
+            <section className="py-20" style={{ backgroundColor: COLORS.background }}>
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 className="text-4xl font-bold text-center mb-6" style={{ color: COLORS.blue }}>
+                  Rediscover Your Voice in the Heart of Kerry
+                </h2>
+                <p className="text-xl text-center text-gray-700 max-w-3xl mx-auto mb-12">
+                  This isn't just another conference. It's the grand finale of the Toastmasters year! Whether you're here to witness the titans of D71 clash, gain new insights, or celebrate with friends, Tralee 2026 is unmissable.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div className="p-6 bg-white rounded-lg shadow-lg text-center">
+                    <Award size={48} className="mx-auto" style={{ color: COLORS.maroon }} />
+                    <h3 className="mt-4 text-2xl font-semibold">Witness Excellence</h3>
+                    <p className="mt-2 text-gray-700">The District Finals for International Speech, Humorous, Table Topics, and Evaluation. See the best of the best!</p>
+                  </div>
+                  <div className="p-6 bg-white rounded-lg shadow-lg text-center">
+                    <BookOpen size={48} className="mx-auto" style={{ color: COLORS.maroon }} />
+                    <h3 className="mt-4 text-2xl font-semibold">Grow Your Skills</h3>
+                    <p className="mt-2 text-gray-700">Engaging workshops on leadership and communication delivered by expert speakers.</p>
+                  </div>
+                  <div className="p-6 bg-white rounded-lg shadow-lg text-center">
+                    <Network size={48} className="mx-auto" style={{ color: COLORS.maroon }} />
+                    <h3 className="mt-4 text-2xl font-semibold">Build Your Network</h3>
+                    <p className="mt-2 text-gray-700">Connect with 200+ fellow Toastmasters. Share ideas, build friendships, and be part of our vibrant community.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Voice Welcome */}
+            <section className="py-20 bg-white">
+              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 className="text-4xl font-bold mb-8" style={{ color: COLORS.blue }}>
+                  A Welcome from our District Director
+                </h2>
+                {/* Audio Player Placeholder */}
+                <div className="p-6 rounded-lg shadow-lg flex items-center space-x-4" style={{ backgroundColor: COLORS.blue, color: 'white' }}>
+                  <Radio size={40} style={{ color: COLORS.yellow }}/>
+                  <div className="flex-1">
+                    <p className="font-semibold text-left">Click play to hear a special welcome</p>
+                    <div className="flex items-center space-x-2 mt-2">
+                      <PlayCircle size={24} className="cursor-pointer" />
+                      <div className="w-full h-2 rounded-full" style={{ backgroundColor: COLORS.gray }}>
+                        <div className="w-1/4 h-full rounded-full" style={{ backgroundColor: COLORS.yellow }}></div>
+                      </div>
+                      <span className="text-sm">0:00 / 0:30</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-6 text-lg italic text-gray-700">
+                  "Hello and welcome, fellow Toastmasters! I'm [District Director's Name], and I am personally inviting you to Tralee for... an unforgettable conference. ...I'll see you by the Rose!"
+                </p>
+              </div>
+            </section>
+            
+            {/* Venue Spotlight */}
+            <section className="py-20" style={{ backgroundColor: COLORS.background }}>
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                  <div>
+                    <img
+                      src="https://placehold.co/600x400/ccc/333?text=The+Rose+Hotel"
+                      alt="The Rose Hotel"
+                      className="rounded-lg shadow-xl w-full"
+                    />
+                  </div>
+                  <div>
+                    <h2 className="text-4xl font-bold" style={{ color: COLORS.blue }}>
+                      Luxury & Comfort at The Rose Hotel
+                    </h2>
+                    <p className="mt-4 text-lg text-gray-700">
+                      We've secured a stunning venue for our 2026 conference. The Rose Hotel is a premier 4-star hotel in Tralee, offering luxurious rooms, exceptional service, and the perfect base to explore the Wild Atlantic Way.
+                    </p>
+                    <button
+                      onClick={() => setPage('Venue')}
+                      className="mt-6 px-6 py-3 rounded-lg font-semibold shadow-md text-white transition-colors"
+                      style={{ backgroundColor: COLORS.maroon }}
+                    >
+                      Learn More & Book Your Room
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Final CTA */}
+            <section className="py-20 text-center" style={{ backgroundColor: COLORS.yellow, color: COLORS.blue }}>
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 className="text-4xl font-extrabold mb-4">Don't Miss Out!</h2>
+                <p className="text-xl mb-8 max-w-2xl mx-auto">
+                  Tickets are limited. Secure your spot for a weekend of growth, laughter, and celebration.
+                </p>
+                <button
+                  onClick={() => setPage('Register')}
+                  className="px-10 py-4 rounded-lg text-xl font-bold shadow-xl transition-transform hover:scale-105"
+                  style={{ backgroundColor: COLORS.blue, color: 'white' }}
+                >
+                  REGISTER NOW
+                </button>
+              </div>
+            </section>
+          </div>
+        );
+
+        /**
+         * Agenda Page
+         */
+        const AgendaPage = () => {
+          const [activeTab, setActiveTab] = useState('friday');
+
+          const AgendaItem = ({ time, title, description, isContest }) => (
+            <div className="flex space-x-4 py-4">
+              <div className="w-24 text-right font-semibold" style={{ color: COLORS.maroon }}>{time}</div>
+              <div className="flex-1 border-l-2 border-gray-200 pl-4">
+                <h4 className={`text-lg font-bold ${isContest ? 'text-xl' : ''}`} style={{ color: isContest ? COLORS.blue : COLORS.text }}>
+                  {title}
+                </h4>
+                {description && <p className="text-gray-600">{description}</p>}
+              </div>
+            </div>
+          );
+
+          const fridayAgenda = (
+            <div>
+              <AgendaItem time="14:00" title="Registration Opens" description="Collect your badge and conference pack." />
+              <AgendaItem time="16:00" title="Volunteer & Contestant Briefings" description="All key personnel to attend." />
+              <AgendaItem time="17:00" title="First Timers Welcome Reception" description="New to a conference? Start here!" />
+              <AgendaItem time="18:00" title="Opening Ceremony" description="Join the District Team as we kick off the weekend." isContest={true} />
+              <AgendaItem time="19:30" title="Contest Finals (e.g., Humorous Speech)" description="Prepare to laugh!" isContest={true} />
+              <AgendaItem time="21:00" title="Networking & Social" description="Relax and catch up with friends, old and new." />
+            </div>
+          );
+
+          const saturdayAgenda = (
+            <div>
+              <AgendaItem time="08:00" title="Registration Re-opens" />
+              <AgendaItem time="09:00" title="Contest Finals (e.g., Table Topics)" description="Witness the masters of impromptu speaking." isContest={true} />
+              <AgendaItem time="10:30" title="Coffee Break & Networking" />
+              <AgendaItem time="11:00" title="Workshop 1" description="e.g., 'Storytelling for Leaders'" />
+              <AgendaItem time="12:30" title="Lunch" />
+              <AgendaItem time="14:00" title="Contest Finals (e.g., Evaluation)" description="Listen, analyze, and deliver." isContest={true} />
+              <AgendaItem time="15:30" title="Keynote Speaker" description="An inspiring session from a special guest." />
+              <AgendaItem time="17:00" title="District Council Meeting" description="For District Officers, Club Presidents, and VPEs." />
+              <AgendaItem time="19:00" title="Gala Dinner Reception" description="Pre-dinner drinks and photos." />
+              <AgendaItem time="20:00" title="Gala Dinner & Awards Ceremony" description="Celebrate our achievements in style. (Formal Attire)" isContest={true} />
+            </div>
+          );
+          
+          const sundayAgenda = (
+            <div>
+              <AgendaItem time="09:00" title="Morning Energizer" description="Start the day with a bang!" />
+              <AgendaItem time="09:30" title="Workshop 2" description="e.g., 'Leading with Empathy'" />
+              <AgendaItem time="11:00" title="International Speech Contest Finals" description="The main event! Who will represent D71?" isContest={true} />
+              <AgendaItem time="12:30" title="Closing Ceremony" description="Awards, thank yous, and the 2027 Conference Handover." />
+              <AgendaItem time="13:00" title="Conference Closes" description="See you next year!" />
+            </div>
+          );
+
+          return (
+            <div className="max-w-5xl mx-auto py-16 px-4 sm:px-6 lg:px-8 animate-fade-in">
+              <h1 className="text-5xl font-extrabold text-center mb-12" style={{ color: COLORS.blue }}>
+                Conference Agenda
+              </h1>
+              <p className="text-center text-lg text-gray-600 mb-8">*Please note: This is a draft agenda and is subject to change.</p>
+              
+              {/* Tab Controls */}
+              <div className="flex justify-center space-x-2 sm:space-x-4 mb-8">
+                <button
+                  onClick={() => setActiveTab('friday')}
+                  className={`px-4 py-3 sm:px-8 sm:py-3 rounded-lg font-semibold ${
+                    activeTab === 'friday' ? 'text-white shadow-lg' : 'bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
+                  style={{ backgroundColor: activeTab === 'friday' ? COLORS.maroon : '' }}
+                >
+                  Friday 8th
+                </button>
+                <button
+                  onClick={() => setActiveTab('saturday')}
+                  className={`px-4 py-3 sm:px-8 sm:py-3 rounded-lg font-semibold ${
+                    activeTab === 'saturday' ? 'text-white shadow-lg' : 'bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
+                  style={{ backgroundColor: activeTab === 'saturday' ? COLORS.maroon : '' }}
+                >
+                  Saturday 9th
+                </button>
+                <button
+                  onClick={() => setActiveTab('sunday')}
+                  className={`px-4 py-3 sm:px-8 sm:py-3 rounded-lg font-semibold ${
+                    activeTab === 'sunday' ? 'text-white shadow-lg' : 'bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
+                  style={{ backgroundColor: activeTab === 'sunday' ? COLORS.maroon : '' }}
+                >
+                  Sunday 10th
+                </button>
+              </div>
+              
+              {/* Tab Content */}
+              <div className="bg-white p-6 sm:p-10 rounded-lg shadow-xl">
+                {activeTab === 'friday' && fridayAgenda}
+                {activeTab === 'saturday' && saturdayAgenda}
+                {activeTab === 'sunday' && sundayAgenda}
+              </div>
+            </div>
+          );
+        };
+
+        /**
+         * Contests Page
+         */
+        const ContestsPage = ({ setPage }) => (
+          <div className="max-w-5xl mx-auto py-16 px-4 sm:px-6 lg:px-8 animate-fade-in">
+            <h1 className="text-5xl font-extrabold text-center mb-6" style={{ color: COLORS.blue }}>
+              The District Finals
+            </h1>
+            <p className="text-center text-xl text-gray-700 mb-12 max-w-3xl mx-auto">
+              This is where champions are made! The District Conference hosts the finals for the four main contests. Come and see the winners from all our Divisions compete for the top trophies in District 71.
+            </p>
+            
+            <div className="bg-white p-6 sm:p-10 rounded-lg shadow-xl">
+              <AccordionItem title="Information for Contestants">
+                <p className="mb-4">
+                  Are you an Area or Division winner? Congratulations! Your Division Director will be in touch with you directly regarding your participation.
+                </p>
+                <p className="mb-4">
+                  You can review the official 
+                  <a 
+                    href="https://www.toastmasters.org/resources/speech-contest-rulebook" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="font-semibold"
+                    style={{ color: COLORS.maroon }}
+                  >
+                    &nbsp;Toastmasters Speech Contest Rulebook&nbsp;
+                  </a> 
+                  to ensure you are fully prepared.
+                </p>
+                <p>
+                  All contestants must attend the virtual briefing (date TBC) and the in-person briefing on Friday, 8th May.
+                </p>
+              </AccordionItem>
+              
+              <AccordionItem title="Information for Judges & Contest Officials">
+                <p className="mb-4">
+                  A fair contest needs a great team. We are looking for experienced Toastmasters to serve as Chief Judge, Voting Judges, Timers, Ballot Counters, and Sergeants-at-Arms.
+                </p>
+                <p className="mb-4">
+                  To be a voting judge, you must have completed at least Level 2 in Pathways and be a member in good standing of a D71 club.
+                </p>
+                <button
+                  onClick={() => setPage('Volunteer')}
+                  className="px-6 py-3 rounded-lg font-semibold shadow-md text-white transition-colors"
+                  style={{ backgroundColor: COLORS.maroon }}
+                >
+                  Sign Up to be a Contest Official
+                </button>
+              </AccordionItem>
+            </div>
+          </div>
+        );
+
+        /**
+         * Venue & Travel Page
+         */
+        const VenuePage = () => (
+          <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 animate-fade-in">
+            <h1 className="text-5xl font-extrabold text-center mb-6" style={{ color: COLORS.blue }}>
+              Venue & Travel
+            </h1>
+            <h2 className="text-3xl font-semibold text-center text-gray-700 mb-12">
+              Your Home for the Weekend: The Rose Hotel
+            </h2>
+
+            {/* Image Gallery */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-12">
+              <img src="https://placehold.co/600x400/ccc/333?text=Hotel+Exterior" alt="Hotel Exterior" className="rounded-lg shadow-md aspect-video object-cover" />
+              <img src="https://placehold.co/600x400/ccc/333?text=Hotel+Lobby" alt="Hotel Lobby" className="rounded-lg shadow-md aspect-video object-cover" />
+              <img src="https://placehold.co/600x400/ccc/333?text=Guest+Room" alt="Guest Room" className="rounded-lg shadow-md aspect-video object-cover" />
+              <img src="https://placehold.co/600x400/ccc/333?text=Restaurant" alt="Restaurant" className="rounded-lg shadow-md aspect-video object-cover" />
+              <img src="https://placehold.co/600x400/ccc/333?text=Serenity+Spa" alt="Serenity Spa" className="rounded-lg shadow-md aspect-video object-cover" />
+              <img src="https://placehold.co/600x400/ccc/333?text=Tralee+Views" alt="Tralee Views" className="rounded-lg shadow-md aspect-video object-cover" />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Left Column: Info */}
+              <div className="lg:col-span-2 bg-white p-8 rounded-lg shadow-xl">
+                <p className="text-lg text-gray-700 mb-6">
+                  The Rose Hotel is a four-star, family-run hotel located in Tralee, perfectly positioned on the edge of the Wild Atlantic Way. It's renowned for its comfort, dining, and the award-winning Serenity Spa.
+                </p>
+                
+                {/* Booking Info */}
+                <div className="p-6 rounded-lg mb-6" style={{ backgroundColor: COLORS.yellow }}>
+                  <h3 className="text-2xl font-bold" style={{ color: COLORS.blue }}>
+                    Special Toastmasters Conference Rate
+                  </h3>
+                  <p className="mt-2" style={{ color: COLORS.blue }}>
+                    We have secured a special discounted rate for conference attendees. To book your room, please call the hotel directly and quote the code **"Toastmasters 2026"**.
+                  </p>
+                  <p className="mt-2 font-semibold" style={{ color: COLORS.maroon }}>
+                    *Note: This rate is limited! Book early to avoid disappointment.*
+                  </p>
+                </div>
+
+                {/* Travel Info */}
+                <h3 className="text-3xl font-bold mt-8 mb-4" style={{ color: COLORS.blue }}>
+                  How to Get Here
+                </h3>
+                <p className="mb-4">
+                  <strong>Address:</strong> Dan Spring Rd, Cloonalour, Tralee, Co. Kerry, V92 HKA4
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-gray-700">
+                  <li><strong>By Air:</strong> The closest airport is <strong>Kerry Airport (KIR)</strong>, just a 20-minute drive. <strong>Shannon Airport (SNN)</strong> and <strong>Cork Airport (ORK)</strong> are approximately 1.5-2 hours away.</li>
+                  <li><strong>By Train:</strong> Tralee (Casement) Station has excellent connections from Dublin (Heuston) and Cork. The station is a 5-minute taxi ride from the hotel.</li>
+                  <li><strong>By Car:</strong> Tralee is easily accessible. Free parking is available at the hotel.</li>
+                </ul>
+              </div>
+              
+              {/* Right Column: Map & Link */}
+              <div className="space-y-8">
+                <div className="bg-white p-6 rounded-lg shadow-xl text-center">
+                  <h4 className="text-xl font-semibold mb-2" style={{ color: COLORS.blue }}>Hotel Website</h4>
+                  <a 
+                    href="https://www.therosehotel.com/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="font-semibold"
+                    style={{ color: COLORS.maroon }}
+                  >
+                    www.therosehotel.com
+                  </a>
+                </div>
+                
+                {/* Map Placeholder */}
+                <div className="bg-gray-300 rounded-lg shadow-md h-80 flex items-center justify-center">
+                  <img 
+                    src="https://placehold.co/400x320/e0e0e0/555?text=Google+Map+Placeholder" 
+                    alt="Map of Tralee"
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+        /**
+         * Volunteer Page
+         */
+        const VolunteerPage = () => {
+          const handleSubmit = (e) => {
+            e.preventDefault();
+            alert("Thank you for volunteering! (This is a demo form)");
+          };
+
+          return (
+            <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 animate-fade-in">
+              <h1 className="text-5xl font-extrabold text-center mb-6" style={{ color: COLORS.blue }}>
+                Be the Heart of the Conference!
+              </h1>
+              <p className="text-center text-xl text-gray-700 mb-12 max-w-3xl mx-auto">
+                A great conference is only possible with a great team of volunteers. It's a fantastic way to meet new people, see "behind the scenes," and contribute to the District's success.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                {/* Left Column: Info & Image */}
+                <div className="space-y-6">
+                  <img 
+                    src="https://placehold.co/600x400/ccc/333?text=Happy+Volunteers" 
+                    alt="Volunteers" 
+                    className="rounded-lg shadow-xl w-full"
+                  />
+                  <h3 className="text-2xl font-semibold" style={{ color: COLORS.blue }}>Volunteer Benefits</h3>
+                  <ul className="list-disc list-inside space-y-2 text-lg text-gray-700">
+                    <li>Meet everyone and expand your network!</li>
+                    <li>Be an essential part of the conference team.</li>
+                    <li>A special "Thank You" gift from the District.</li>
+                    <li className="italic text-gray-500">[Optional: Small ticket discount]</li>
+                  </ul>
+                </div>
+                
+                {/* Right Column: Form */}
+                <div className="bg-white p-8 rounded-lg shadow-xl">
+                  <h2 className="text-3xl font-bold mb-6" style={{ color: COLORS.blue }}>Volunteer Sign-up Form</h2>
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+                      <input type="text" id="name" required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2" style={{ focusRingColor: COLORS.blue }} />
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                      <input type="email" id="email" required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2" />
+                    </div>
+                    <div>
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone</label>
+                      <input type="tel" id="phone" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2" />
+                    </div>
+                    <div>
+                      <label htmlFor="club" className="block text-sm font-medium text-gray-700">Home Club</label>
+                      <input type="text" id="club" required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2" />
+                    </div>
+                    
+                    <fieldset>
+                      <legend className="text-sm font-medium text-gray-700">I am available for:</legend>
+                      <div className="mt-2 space-y-2">
+                        {['Friday Afternoon', 'Friday Evening', 'Saturday Morning', 'Saturday Afternoon', 'Saturday Evening (Gala)', 'Sunday Morning'].map(time => (
+                          <div key={time} className="flex items-center">
+                            <input id={time} name="availability" type="checkbox" className="h-4 w-4 rounded" style={{ accentColor: COLORS.maroon }} />
+                            <label htmlFor={time} className="ml-3 text-sm text-gray-700">{time}</label>
+                          </div>
+                        ))}
+                      </div>
+                    </fieldset>
+
+                    <div>
+                      <label htmlFor="role" className="block text-sm font-medium text-gray-700">My preferred role is:</label>
+                      <select id="role" className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-2">
+                        <option>Floater (Help wherever needed!)</option>
+                        <option>Registration Desk (Welcoming, check-in)</option>
+                        <option>Sergeant-at-Arms (Room management)</option>
+                        <option>Tech/AV Support (Microphones)</option>
+                        <option>Contest Official (Requires eligibility)</option>
+                      </select>
+                    </div>
+                    
+                    <button
+                      type="submit"
+                      className="w-full px-6 py-3 rounded-lg font-semibold shadow-md text-white transition-colors"
+                      style={{ backgroundColor: COLORS.blue }}
+                    >
+                      SUBMIT
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        /**
+         * FAQ Page
+         */
+        const FAQPage = () => (
+          <div className="max-w-4xl mx-auto py-16 px-4 sm:px-6 lg:px-8 animate-fade-in">
+            <h1 className="text-5xl font-extrabold text-center mb-12" style={{ color: COLORS.blue }}>
+              Frequently Asked Questions
+            </h1>
+            <div className="bg-white p-6 sm:p-10 rounded-lg shadow-xl">
+              <AccordionItem title="What is the dress code?">
+                <p>Business casual is recommended for the main conference. Friday night is smart-casual. The Gala Dinner on Saturday is <strong>Black Tie / Formal / National Dress</strong>.</p>
+              </AccordionItem>
+              <AccordionItem title="Can I buy a ticket for just the Gala Dinner?">
+                <p>Yes! On our registration page (coming soon), you will be able to select a "Gala Dinner Only" ticket for partners or friends who wish to join you.</p>
+              </AccordionItem>
+              <AccordionItem title="I'm a contestant. Do I need to buy a ticket?">
+                <p>Yes, all attendees, including contestants, must purchase a conference ticket. This ticket covers your entry to all events, workshops, and meals (as specified on the ticket).</p>
+              </AccordionItem>
+              <AccordionItem title="What are the travel options to Tralee?">
+                <p>Please see our <a href="#" onClick={(e) => { e.preventDefault(); /* This would ideally link to the Venue page */ }} className="font-semibold" style={{ color: COLORS.maroon }}>Venue & Travel</a> page for detailed information on flying, driving, or taking the train.</p>
+              </AccordionItem>
+              <AccordionItem title="Is my ticket refundable?">
+                <p>Please see our refund policy on the registration page (once live). Generally, tickets are non-refundable after [Date, e.g., April 1st, 2026] but can be transferred to another member.</p>
+              </AccordionItem>
+            </div>
+          </div>
+        );
+
+        /**
+         * Main App Component
+         * Handles navigation and renders pages
+         */
+        function App() {
+          const [page, setPage] = useState('Home');
+
+          // Simple scroll-to-top on page change
+          useEffect(() => {
+            window.scrollTo(0, 0);
+          }, [page]);
+
+          // Update FAQ link to navigate
+          const goToPage = (pageName) => {
+            setPage(pageName);
+          };
+
+          const renderPage = () => {
+            switch (page) {
+              case 'Home':
+                return <HomePage setPage={goToPage} />;
+              case 'Agenda':
+                return <AgendaPage />;
+              case 'Contests':
+                return <ContestsPage setPage={goToPage} />;
+              case 'Venue':
+                return <VenuePage />;
+              case 'Volunteer':
+                return <VolunteerPage />;
+              case 'FAQ':
+                // Need to pass setPage to FAQPage to make the link work
+                return (
+                  <div className="max-w-4xl mx-auto py-16 px-4 sm:px-6 lg:px-8 animate-fade-in">
+                    <h1 className="text-5xl font-extrabold text-center mb-12" style={{ color: COLORS.blue }}>
+                      Frequently Asked Questions
+                    </h1>
+                    <div className="bg-white p-6 sm:p-10 rounded-lg shadow-xl">
+                      <AccordionItem title="What is the dress code?">
+                        <p>Business casual is recommended for the main conference. Friday night is smart-casual. The Gala Dinner on Saturday is <strong>Black Tie / Formal / National Dress</strong>.</p>
+                      </AccordionItem>
+                      <AccordionItem title="Can I buy a ticket for just the Gala Dinner?">
+                        <p>Yes! On our registration page (coming soon), you will be able to select a "Gala Dinner Only" ticket for partners or friends who wish to join you.</p>
+                      </AccordionItem>
+                      <AccordionItem title="I'm a contestant. Do I need to buy a ticket?">
+                        <p>Yes, all attendees, including contestants, must purchase a conference ticket. This ticket covers your entry to all events, workshops, and meals (as specified on the ticket).</p>
+                      </AccordionItem>
+                      <AccordionItem title="What are the travel options to Tralee?">
+                        <p>Please see our <a href="#" onClick={(e) => { e.preventDefault(); goToPage('Venue'); }} className="font-semibold" style={{ color: COLORS.maroon }}>Venue & Travel</a> page for detailed information on flying, driving, or taking the train.</p>
+                      </AccordionItem>
+                      <AccordionItem title="Is my ticket refundable?">
+                        <p>Please see our refund policy on the registration page (once live). Generally, tickets are non-refundable after [Date, e.g., April 1st, 2026] but can be transferred to another member.</p>
+                      </AccordionItem>
+                    </div>
+                  </div>
+                );
+              case 'Register':
+                // This is a placeholder. In a real app, this might be a modal or a separate page.
+                alert("Registration page/modal would open here!");
+                setPage('Home'); // Go back to home after alert
+                return <HomePage setPage={goToPage} />;
+              default:
+                return <HomePage setPage={goToPage} />;
+            }
+          };
+
+          return (
+            <div className="font-sans" style={{ backgroundColor: COLORS.background, color: COLORS.text }}>
+              {/* Styles are in the <head> */}
+              <Header page={page} setPage={goToPage} />
+              <main className="min-h-screen">
+                {renderPage()}
+              </main>
+              <Footer />
+            </div>
+          );
+        }
+        
+        // 5. Render the App to the #root element
+        ReactDOM.render(<App />, document.getElementById('root'));
+
+    </script>
+</body>
+</html>
