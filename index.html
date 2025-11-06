@@ -134,6 +134,24 @@
             </IconWrapper>
         );
 
+        const User = ({ size = 24, className = "" }) => (
+            <IconWrapper size={size} className={className}>
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </IconWrapper>
+        );
+
+        const Star = ({ size = 24, className = "" }) => (
+            <IconWrapper size={size} className={className}>
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </IconWrapper>
+        );
+        
+        const Info = ({ size = 24, className = "" }) => (
+            <IconWrapper size={size} className={className}>
+                <circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/>
+            </IconWrapper>
+        );
+
         // --- Original React App Code (with imports/exports removed) ---
 
         // --- Color Palette (Based on Toastmasters Branding) ---
@@ -158,6 +176,8 @@
           const navItems = [
             { name: 'Home', page: 'Home' },
             { name: 'Agenda', page: 'Agenda' },
+            { name: 'Speakers', page: 'Speakers' },
+            { name: 'About', page: 'About' },
             { name: 'Contests', page: 'Contests' },
             { name: 'Venue & Travel', page: 'Venue' },
             { name: 'Volunteer', page: 'Volunteer' },
@@ -204,14 +224,13 @@
                       {navItems.map((item) => (
                         <NavLink key={item.name} item={item} />
                       ))}
-                      <a
+                      <button
                         onClick={() => setPage('Register')} // Assuming 'Register' is a future page or modal
                         style={{ backgroundColor: COLORS.yellow, color: COLORS.blue }}
                         className="ml-4 px-4 py-2 rounded-md text-sm font-bold shadow-md hover:opacity-90 transition-opacity"
-                        href="https://forms.d71toastmasters.org/t/jbk6HTHbjYus" target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-[#F2DF74] to-yellow-300 text-[#004165] font-bold py-2 px-4 rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300">
                       >
-                        REGISTER NOW 
-                      </a>
+                        REGISTER NOW
+                      </button>
                     </div>
                   </div>
 
@@ -330,6 +349,68 @@
             </div>
           );
         };
+
+        /**
+         * Speaker Card
+         * Reusable component for speaker profiles
+         */
+        const SpeakerCard = ({ name, title, bio, imageUrl, isKeynote = false }) => (
+          <div className="bg-white rounded-lg shadow-xl overflow-hidden flex flex-col md:flex-row">
+            <div className="md:w-1/3">
+              <img 
+                src={imageUrl} 
+                alt={name} 
+                className="w-full h-48 md:h-full object-cover object-center"
+              />
+            </div>
+            <div className="md:w-2/3 p-6">
+              {isKeynote && (
+                <div 
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold mb-2"
+                  style={{ backgroundColor: COLORS.yellow, color: COLORS.blue }}
+                >
+                  <Star size={16} className="mr-2" />
+                  Keynote Speaker
+                </div>
+              )}
+              <h3 className="text-3xl font-bold" style={{ color: COLORS.blue }}>{name}</h3>
+              <p className="text-lg font-semibold italic mb-3" style={{ color: COLORS.maroon }}>{title}</p>
+              <p className="text-gray-700">{bio}</p>
+            </div>
+          </div>
+        );
+
+        /**
+         * Workshop Card
+         * Reusable component for workshop details
+         */
+        const WorkshopCard = ({ title, speaker, description }) => (
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h3 className="text-2xl font-bold mb-2" style={{ color: COLORS.blue }}>{title}</h3>
+            <p className="text-md font-semibold mb-3" style={{ color: COLORS.maroon }}>
+              Led by: {speaker}
+            </p>
+            <p className="text-gray-700">{description}</p>
+          </div>
+        );
+
+        /**
+         * Team Member Card
+         * Reusable component for the About page
+         */
+        const TeamMemberCard = ({ name, role, imageUrl }) => (
+          <div className="bg-white p-4 rounded-lg shadow-lg text-center">
+            <img
+              src={imageUrl}
+              alt={name}
+              className="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4"
+              style={{ borderColor: COLORS.blue }}
+            />
+            <h4 className="text-xl font-bold" style={{ color: COLORS.blue }}>{name}</h4>
+            <p className="text-md font-semibold" style={{ color: COLORS.maroon }}>{role}</p>
+          </div>
+        );
+
 
         /**
          * Footer Component
@@ -536,6 +617,175 @@
         );
 
         /**
+         * Speakers Page
+         */
+        const SpeakerPage = () => (
+          <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 animate-fade-in">
+            <h1 className="text-5xl font-extrabold text-center mb-12" style={{ color: COLORS.blue }}>
+              Meet Our Speakers
+            </h1>
+            
+            {/* Keynote Speaker */}
+            <section className="mb-16">
+              <h2 className="text-4xl font-bold text-center mb-10" style={{ color: COLORS.maroon }}>
+                Keynote Speaker
+              </h2>
+              <SpeakerCard
+                name="Dr. Evelyn Reed, DTM"
+                title="Past International President & Communication Expert"
+                bio="Dr. Reed is a renowned communication strategist and a Past International President of Toastmasters. Her insights on leadership and oratory have inspired thousands. We are honored to have her as our keynote, addressing 'The Future of Connection'."
+                imageUrl="https://placehold.co/400x400/6F263D/F2DF74?text=Dr.+Evelyn+Reed"
+                isKeynote={true}
+              />
+            </section>
+
+            {/* Workshop Speakers */}
+            <section className="mb-16">
+              <h2 className="text-4xl font-bold text-center mb-10" style={{ color: COLORS.blue }}>
+                Workshop Facilitators
+              </h2>
+              <div className="space-y-12">
+                <SpeakerCard
+                  name="Marcus Chen, DTM"
+                  title="World Champion of Public Speaking Finalist"
+                  bio="Marcus is an award-winning storyteller who believes in the power of narrative to change minds. His workshop, 'Storytelling for Leaders', will equip you with the tools to craft compelling stories that resonate."
+                  imageUrl="https://placehold.co/400x400/004165/FFF?text=Marcus+Chen"
+                />
+                <SpeakerCard
+                  name="Aoife O'Malley"
+                  title="Leadership & Empathy Coach"
+                  bio="Aoife is a professional coach who specializes in empathetic leadership and team dynamics. She brings a wealth of experience from the corporate world to her interactive session, 'Leading with Empathy'."
+                  imageUrl="https://placehold.co/400x400/ccc/333?text=Aoife+O'Malley"
+                />
+              </div>
+            </section>
+
+            {/* Workshop Details */}
+            <section>
+              <h2 className="text-4xl font-bold text-center mb-10" style={{ color: COLORS.blue }}>
+                Workshop Details
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <WorkshopCard
+                  title="Workshop 1: Storytelling for Leaders"
+                  speaker="Marcus Chen, DTM"
+                  description="Dive deep into the structure of a compelling story. Learn how to use vocal variety, body language, and pacing to bring your narratives to life and inspire your team."
+                />
+                <WorkshopCard
+                  title="Workshop 2: Leading with Empathy"
+                  speaker="Aoife O'Malley"
+                  description="In this interactive session, you'll explore practical strategies for active listening, understanding diverse perspectives, and building a culture of trust and psychological safety within your club or workplace."
+                />
+              </div>
+            </section>
+          </div>
+        );
+
+        /**
+         * About Page
+         */
+        const AboutPage = () => {
+          const HistoryRow = ({ year, location, theme }) => (
+            <tr className="border-b border-gray-200 hover:bg-gray-50">
+              <td className="py-3 px-4 font-semibold" style={{ color: COLORS.blue }}>{year}</td>
+              <td className="py-3 px-4 text-gray-700">{location}</td>
+              <td className="py-3 px-4 text-gray-700 italic">"{theme}"</td>
+            </tr>
+          );
+
+          return (
+            <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 animate-fade-in">
+              <h1 className="text-5xl font-extrabold text-center mb-12" style={{ color: COLORS.blue }}>
+                About the Conference
+              </h1>
+              
+              {/* Conference Team Section */}
+              <section className="mb-16">
+                <h2 className="text-4xl font-bold text-center mb-10" style={{ color: COLORS.maroon }}>
+                  Meet the 2026 Conference Team
+                </h2>
+                <p className="text-center text-lg text-gray-700 mb-10 max-w-3xl mx-auto">
+                  This event is brought to you by a dedicated team of volunteers from across District 71.
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                  <TeamMemberCard 
+                    name="Aoife McCann" 
+                    role="Conference Chair" 
+                    imageUrl="https://placehold.co/200x200/ccc/333?text=A.+McCann"
+                  />
+                  <TeamMemberCard 
+                    name="Brian Smith" 
+                    role="Education Chair" 
+                    imageUrl="https://placehold.co/200x200/ccc/333?text=B.+Smith"
+                  />
+                  <TeamMemberCard 
+                    name="Siobhan Kelly" 
+                    role="Contest Chair" 
+                    imageUrl="https://placehold.co/200x200/ccc/333?text=S.+Kelly"
+                  />
+                  <TeamMemberCard 
+                    name="David Chen" 
+                    role="Finance Chair" 
+                    imageUrl="https://placehold.co/200x200/ccc/333?text=D.+Chen"
+                  />
+                  <TeamMemberCard 
+                    name="Fiona Doyle" 
+                    role="PR & Marketing" 
+                    imageUrl="https://placehold.co/200x200/ccc/333?text=F.+Doyle"
+                  />
+                  <TeamMemberCard 
+                    name="Liam Murphy" 
+                    role="Logistics Lead" 
+                    imageUrl="https://placehold.co/200x200/ccc/333?text=L.+Murphy"
+                  />
+                  <TeamMemberCard 
+                    name="Sarah Jenkins" 
+                    role="Sponsorship" 
+                    imageUrl="https://placehold.co/200x200/ccc/333?text=S.+Jenkins"
+                  />
+                  <TeamMemberCard 
+                    name="Mike Johnson" 
+                    role="Volunteer Coordinator" 
+                    imageUrl="https://placehold.co/200x200/ccc/333?text=M.+Johnson"
+                  />
+                </div>
+              </section>
+
+              {/* History Section */}
+              <section>
+                <h2 className="text-4xl font-bold text-center mb-10" style={{ color: COLORS.blue }}>
+                  Our Storied History
+                </h2>
+                <p className="text-center text-lg text-gray-700 mb-10 max-w-3xl mx-auto">
+                  The District 71 Conference is a proud tradition, bringing members together for decades to celebrate, learn, and compete. Here's a look at our recent journey.
+                </p>
+                
+                <div className="bg-white p-6 sm:p-10 rounded-lg shadow-xl overflow-hidden">
+                  <table className="w-full min-w-full">
+                    <thead className="border-b-2 border-gray-300">
+                      <tr>
+                        <th className="py-3 px-4 text-left text-sm font-bold uppercase" style={{ color: COLORS.blue }}>Year</th>
+                        <th className="py-3 px-4 text-left text-sm font-bold uppercase" style={{ color: COLORS.blue }}>Location</th>
+                        <th className="py-3 px-4 text-left text-sm font-bold uppercase" style={{ color: COLORS.blue }}>Theme</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <HistoryRow year="2025" location="Cork, Ireland" theme="Find Your Voice" />
+                      <HistoryRow year="2024" location="Newcastle, UK" theme="Bridges to the Future" />
+                      <HistoryRow year="2023" location="Athlone, Ireland" theme="Reconnect & Reimagine" />
+                      <HistoryRow year="2022" location="Virtual" theme="Resilience & Reinvention" />
+                      <HistoryRow year="2021" location="Virtual" theme="Stronger Together" />
+                      <HistoryRow year="2019" location="Norwich, UK" theme="Unleash Your Potential" />
+                      <HistoryRow year="2018" location="Limerick, Ireland" theme="Waves of Inspiration" />
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+          );
+        };
+
+        /**
          * Agenda Page
          */
         const AgendaPage = () => {
@@ -569,10 +819,10 @@
               <AgendaItem time="08:00" title="Registration Re-opens" />
               <AgendaItem time="09:00" title="Contest Finals (e.g., Table Topics)" description="Witness the masters of impromptu speaking." isContest={true} />
               <AgendaItem time="10:30" title="Coffee Break & Networking" />
-              <AgendaItem time="11:00" title="Workshop 1" description="e.g., 'Storytelling for Leaders'" />
+              <AgendaItem time="11:00" title="Workshop 1: Storytelling for Leaders" description="Led by Marcus Chen" />
               <AgendaItem time="12:30" title="Lunch" />
               <AgendaItem time="14:00" title="Contest Finals (e.g., Evaluation)" description="Listen, analyze, and deliver." isContest={true} />
-              <AgendaItem time="15:30" title="Keynote Speaker" description="An inspiring session from a special guest." />
+              <AgendaItem time="15:30" title="Keynote: The Future of Connection" description="Delivered by Dr. Evelyn Reed" />
               <AgendaItem time="17:00" title="District Council Meeting" description="For District Officers, Club Presidents, and VPEs." />
               <AgendaItem time="19:00" title="Gala Dinner Reception" description="Pre-dinner drinks and photos." />
               <AgendaItem time="20:00" title="Gala Dinner & Awards Ceremony" description="Celebrate our achievements in style. (Formal Attire)" isContest={true} />
@@ -582,7 +832,7 @@
           const sundayAgenda = (
             <div>
               <AgendaItem time="09:00" title="Morning Energizer" description="Start the day with a bang!" />
-              <AgendaItem time="09:30" title="Workshop 2" description="e.g., 'Leading with Empathy'" />
+              <AgendaItem time="09:30" title="Workshop 2: Leading with Empathy" description="Led by Aoife O'Malley" />
               <AgendaItem time="11:00" title="International Speech Contest Finals" description="The main event! Who will represent D71?" isContest={true} />
               <AgendaItem time="12:30" title="Closing Ceremony" description="Awards, thank yous, and the 2027 Conference Handover." />
               <AgendaItem time="13:00" title="Conference Closes" description="See you next year!" />
@@ -871,7 +1121,7 @@
         /**
          * FAQ Page
          */
-        const FAQPage = () => (
+        const FAQPage = ({ setPage }) => (
           <div className="max-w-4xl mx-auto py-16 px-4 sm:px-6 lg:px-8 animate-fade-in">
             <h1 className="text-5xl font-extrabold text-center mb-12" style={{ color: COLORS.blue }}>
               Frequently Asked Questions
@@ -887,7 +1137,7 @@
                 <p>Yes, all attendees, including contestants, must purchase a conference ticket. This ticket covers your entry to all events, workshops, and meals (as specified on the ticket).</p>
               </AccordionItem>
               <AccordionItem title="What are the travel options to Tralee?">
-                <p>Please see our <a href="#" onClick={(e) => { e.preventDefault(); /* This would ideally link to the Venue page */ }} className="font-semibold" style={{ color: COLORS.maroon }}>Venue & Travel</a> page for detailed information on flying, driving, or taking the train.</p>
+                <p>Please see our <a href="#" onClick={(e) => { e.preventDefault(); setPage('Venue'); }} className="font-semibold" style={{ color: COLORS.maroon }}>Venue & Travel</a> page for detailed information on flying, driving, or taking the train.</p>
               </AccordionItem>
               <AccordionItem title="Is my ticket refundable?">
                 <p>Please see our refund policy on the registration page (once live). Generally, tickets are non-refundable after [Date, e.g., April 1st, 2026] but can be transferred to another member.</p>
@@ -919,6 +1169,10 @@
                 return <HomePage setPage={goToPage} />;
               case 'Agenda':
                 return <AgendaPage />;
+              case 'Speakers':
+                return <SpeakerPage />;
+              case 'About':
+                return <AboutPage />;
               case 'Contests':
                 return <ContestsPage setPage={goToPage} />;
               case 'Venue':
@@ -926,31 +1180,8 @@
               case 'Volunteer':
                 return <VolunteerPage />;
               case 'FAQ':
-                // Need to pass setPage to FAQPage to make the link work
-                return (
-                  <div className="max-w-4xl mx-auto py-16 px-4 sm:px-6 lg:px-8 animate-fade-in">
-                    <h1 className="text-5xl font-extrabold text-center mb-12" style={{ color: COLORS.blue }}>
-                      Frequently Asked Questions
-                    </h1>
-                    <div className="bg-white p-6 sm:p-10 rounded-lg shadow-xl">
-                      <AccordionItem title="What is the dress code?">
-                        <p>Business casual is recommended for the main conference. Friday night is smart-casual. The Gala Dinner on Saturday is <strong>Black Tie / Formal / National Dress</strong>.</p>
-                      </AccordionItem>
-                      <AccordionItem title="Can I buy a ticket for just the Gala Dinner?">
-                        <p>Yes! On our registration page (coming soon), you will be able to select a "Gala Dinner Only" ticket for partners or friends who wish to join you.</p>
-                      </AccordionItem>
-                      <AccordionItem title="I'm a contestant. Do I need to buy a ticket?">
-                        <p>Yes, all attendees, including contestants, must purchase a conference ticket. This ticket covers your entry to all events, workshops, and meals (as specified on the ticket).</p>
-                      </AccordionItem>
-                      <AccordionItem title="What are the travel options to Tralee?">
-                        <p>Please see our <a href="#" onClick={(e) => { e.preventDefault(); goToPage('Venue'); }} className="font-semibold" style={{ color: COLORS.maroon }}>Venue & Travel</a> page for detailed information on flying, driving, or taking the train.</p>
-                      </AccordionItem>
-                      <AccordionItem title="Is my ticket refundable?">
-                        <p>Please see our refund policy on the registration page (once live). Generally, tickets are non-refundable after [Date, e.g., April 1st, 2026] but can be transferred to another member.</p>
-                      </AccordionItem>
-                    </div>
-                  </div>
-                );
+                // Pass the goToPage function to the FAQPage component
+                return <FAQPage setPage={goToPage} />;
               case 'Register':
                 // This is a placeholder. In a real app, this might be a modal or a separate page.
                 alert("Registration page/modal would open here!");
