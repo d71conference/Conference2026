@@ -24,6 +24,22 @@
             animation: fadeIn 0.5s ease-out;
         }
         
+        /* Modal Animations */
+        @keyframes fadeInBackdrop {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideInModal {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-backdrop-fade-in {
+            animation: fadeInBackdrop 0.3s ease-out;
+        }
+        .modal-content-slide-in {
+            animation: slideInModal 0.3s ease-out;
+        }
+
         /* Basic styles to ensure root takes height */
         body {
             margin: 0;
@@ -429,6 +445,65 @@
           </footer>
         );
 
+        /**
+         * Modal Component
+         */
+        const Modal = ({ show, onClose, title, children }) => {
+          if (!show) {
+            return null;
+          }
+
+          // Handle escape key to close modal
+          useEffect(() => {
+            const handleEscape = (event) => {
+              if (event.key === 'Escape') {
+                onClose();
+              }
+            };
+            document.addEventListener('keydown', handleEscape);
+            return () => document.removeEventListener('keydown', handleEscape);
+          }, [onClose]);
+
+          return (
+            <div 
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop-fade-in" 
+              style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+              onClick={onClose} // Close modal on backdrop click
+            >
+              <div 
+                className="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col modal-content-slide-in"
+                onClick={e => e.stopPropagation()} // Prevent modal content click from closing
+              >
+                {/* Modal Header */}
+                <div className="flex justify-between items-center p-5 border-b">
+                  <h3 className="text-2xl font-bold" style={{ color: COLORS.blue }}>{title}</h3>
+                  <button 
+                    onClick={onClose} 
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <X size={28} />
+                  </button>
+                </div>
+                {/* Modal Body */}
+                <div className="p-6 overflow-y-auto">
+                  {children}
+                </div>
+                {/* Modal Footer */}
+                <div className="p-4 border-t bg-gray-50 flex justify-end rounded-b-lg">
+                  <button
+                    onClick={onClose}
+                    className="px-6 py-2 rounded-lg font-semibold shadow-md text-white transition-colors"
+                    style={{ backgroundColor: COLORS.maroon }}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+
         // --- Page Components ---
 
         /**
@@ -790,26 +865,69 @@
          */
         const AgendaPage = () => {
           const [activeTab, setActiveTab] = useState('friday');
+          const [isModalOpen, setIsModalOpen] = useState(false);
+          const [modalContent, setModalContent] = useState({ title: '', content: null });
 
-          const AgendaItem = ({ time, title, description, isContest }) => (
-            <div className="flex space-x-4 py-4">
-              <div className="w-24 text-right font-semibold" style={{ color: COLORS.maroon }}>{time}</div>
-              <div className="flex-1 border-l-2 border-gray-200 pl-4">
-                <h4 className={`text-lg font-bold ${isContest ? 'text-xl' : ''}`} style={{ color: isContest ? COLORS.blue : COLORS.text }}>
-                  {title}
-                </h4>
-                {description && <p className="text-gray-600">{description}</p>}
+          const showModal = (title, content) => {
+            setModalContent({ title, content });
+            setIsModalOpen(true);
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+          };
+
+          const closeModal = () => {
+            setIsModalOpen(false);
+            setModalContent({ title: '', content: null });
+            document.body.style.overflow = 'auto'; // Restore scrolling
+          };
+
+          const AgendaItem = ({ time, title, description, details, isContest }) => {
+            const hasDetails = !!details;
+            const itemClass = `flex space-x-4 py-4 ${hasDetails ? 'cursor-pointer hover:bg-gray-50' : ''}`;
+            
+            return (
+              <div className={itemClass} onClick={hasDetails ? () => showModal(title, details) : null}>
+                <div className="w-24 text-right font-semibold" style={{ color: COLORS.maroon }}>{time}</div>
+                <div className="flex-1 border-l-2 border-gray-200 pl-4">
+                  <h4 className={`text-lg font-bold ${isContest ? 'text-xl' : ''}`} style={{ color: isContest ? COLORS.blue : COLORS.text }}>
+                    {title}
+                  </h4>
+                  {description && <p className="text-gray-600">{description}</p>}
+                  {hasDetails && (
+                    <p className="text-sm font-semibold mt-1" style={{ color: COLORS.maroon }}>
+                      Click for details...
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          );
+            );
+          };
 
           const fridayAgenda = (
             <div>
               <AgendaItem time="14:00" title="Registration Opens" description="Collect your badge and conference pack." />
               <AgendaItem time="16:00" title="Volunteer & Contestant Briefings" description="All key personnel to attend." />
               <AgendaItem time="17:00" title="First Timers Welcome Reception" description="New to a conference? Start here!" />
-              <AgendaItem time="18:00" title="Opening Ceremony" description="Join the District Team as we kick off the weekend." isContest={true} />
-              <AgendaItem time="19:30" title="Contest Finals (e.g., Humorous Speech)" description="Prepare to laugh!" isContest={true} />
+              <AgendaItem 
+                time="18:00" 
+                title="Opening Ceremony" 
+                description="Join the District Team as we kick off the weekend." 
+                isContest={true}
+                details={
+                  <p>The official start of the conference! We'll have a welcome from the District Director, an overview of the weekend, and a special opening performance to celebrate our arrival in Tralee.</p>
+                }
+              />
+              <AgendaItem 
+                time="19:30" 
+                title="Contest Finals: Humorous Speech" 
+                description="Prepare to laugh!" 
+                isContest={true} 
+                details={
+                  <div>
+                    <p className="mb-4">Witness the funniest speakers from across our District compete for the top prize.</p>
+                    <p>Contestants will deliver a 5-7 minute humorous speech that must be thematic in nature (opening, body, and close), not just a monologue of one-liners.</p>
+                  </div>
+                }
+              />
               <AgendaItem time="21:00" title="Networking & Social" description="Relax and catch up with friends, old and new." />
             </div>
           );
@@ -817,30 +935,117 @@
           const saturdayAgenda = (
             <div>
               <AgendaItem time="08:00" title="Registration Re-opens" />
-              <AgendaItem time="09:00" title="Contest Finals (e.g., Table Topics)" description="Witness the masters of impromptu speaking." isContest={true} />
+              <AgendaItem 
+                time="09:00" 
+                title="Contest Finals: Table Topics" 
+                description="Witness the masters of impromptu speaking." 
+                isContest={true} 
+                details={
+                  <div>
+                    <p className="mb-4">The ultimate test of impromptu speaking! Contestants are given a topic and have just 1-2 minutes to deliver a coherent speech.</p>
+                    <p>All contestants will speak on the same topic, which is kept secret until their turn on stage.</p>
+                  </div>
+                }
+              />
               <AgendaItem time="10:30" title="Coffee Break & Networking" />
-              <AgendaItem time="11:00" title="Workshop 1: Storytelling for Leaders" description="Led by Marcus Chen" />
+              <AgendaItem 
+                time="11:00" 
+                title="Workshop 1: Storytelling for Leaders" 
+                description="Led by Marcus Chen, DTM" 
+                details={
+                  <div>
+                    <p className="mb-4"><strong>Speaker:</strong> Marcus Chen, DTM (World Champion of Public Speaking Finalist)</p>
+                    <p className="mb-4">Dive deep into the structure of a compelling story. Learn how to use vocal variety, body language, and pacing to bring your narratives to life.</p>
+                    <p>This session will equip you with the tools to craft compelling stories that resonate, inspire action, and make you a more effective leader.</p>
+                  </div>
+                }
+              />
               <AgendaItem time="12:30" title="Lunch" />
-              <AgendaItem time="14:00" title="Contest Finals (e.g., Evaluation)" description="Listen, analyze, and deliver." isContest={true} />
-              <AgendaItem time="15:30" title="Keynote: The Future of Connection" description="Delivered by Dr. Evelyn Reed" />
+              <AgendaItem 
+                time="14:00" 
+                title="Contest Finals: Evaluation" 
+                description="Listen, analyze, and deliver." 
+                isContest={true} 
+                details={
+                  <div>
+                    <p className="mb-4">A test speech will be delivered, and all contestants will evaluate the same speech.</p>
+                    <p>Contestants have 5 minutes to prepare their 2-3 minute evaluation, highlighting strengths, areas for improvement, and providing constructive feedback.</p>
+                  </div>
+                }
+              />
+              <AgendaItem 
+                time="15:30" 
+                title="Keynote: The Future of Connection" 
+                description="Delivered by Dr. Evelyn Reed, DTM"
+                details={
+                  <div>
+                    <p className="mb-4"><strong>Keynote Speaker:</strong> Dr. Evelyn Reed, DTM (Past International President & Communication Expert)</p>
+                    <p>In a world of digital noise, how do we create genuine human connection? Dr. Reed explores the future of communication, the power of authenticity, and how Toastmasters are uniquely positioned to lead the way.</p>
+                  </div>
+                }
+              />
               <AgendaItem time="17:00" title="District Council Meeting" description="For District Officers, Club Presidents, and VPEs." />
               <AgendaItem time="19:00" title="Gala Dinner Reception" description="Pre-dinner drinks and photos." />
-              <AgendaItem time="20:00" title="Gala Dinner & Awards Ceremony" description="Celebrate our achievements in style. (Formal Attire)" isContest={true} />
+              <AgendaItem 
+                time="20:00" 
+                title="Gala Dinner & Awards Ceremony" 
+                description="Celebrate our achievements in style. (Formal Attire)" 
+                isContest={true} 
+                details={
+                  <p>Join us for the highlight of the conference. This formal evening includes a three-course meal, the presentation of District awards, and celebrating the new DTMs and achievements of our members, all followed by music and dancing.</p>
+                }
+              />
             </div>
           );
           
           const sundayAgenda = (
             <div>
               <AgendaItem time="09:00" title="Morning Energizer" description="Start the day with a bang!" />
-              <AgendaItem time="09:30" title="Workshop 2: Leading with Empathy" description="Led by Aoife O'Malley" />
-              <AgendaItem time="11:00" title="International Speech Contest Finals" description="The main event! Who will represent D71?" isContest={true} />
-              <AgendaItem time="12:30" title="Closing Ceremony" description="Awards, thank yous, and the 2027 Conference Handover." />
+              <AgendaItem 
+                time="09:30" 
+                title="Workshop 2: Leading with Empathy" 
+                description="Led by Aoife O'Malley"
+                details={
+                  <div>
+                    <p className="mb-4"><strong>Speaker:</strong> Aoife O'Malley (Leadership & Empathy Coach)</p>
+                    <p>In this interactive session, you'll explore practical strategies for active listening, understanding diverse perspectives, and building a culture of trust and psychological safety within your club or workplace.</p>
+                  </div>
+                }
+              />
+              <AgendaItem 
+                time="11:00" 
+                title="International Speech Contest Finals" 
+                description="The main event! Who will represent D71?" 
+                isContest={true} 
+                details={
+                  <div>
+                    <p className="mb-4">The culmination of the contest season. The winner of this contest will go on to represent District 71 in the Quarterfinals of the World Championship of Public Speaking.</p>
+                    <p>Contestants will deliver a 5-7 minute inspirational or persuasive speech on any topic they choose.</p>
+                  </div>
+                }
+              />
+              <AgendaItem 
+                time="12:30" 
+                title="Closing Ceremony" 
+                description="Awards, thank yous, and the 2027 Conference Handover."
+                details={
+                  <p>We'll announce the winners of the International Speech Contest, thank our volunteers and conference team, and officially hand over the conference responsibilities to the 2027 team.</p>
+                }
+              />
               <AgendaItem time="13:00" title="Conference Closes" description="See you next year!" />
             </div>
           );
 
           return (
             <div className="max-w-5xl mx-auto py-16 px-4 sm:px-6 lg:px-8 animate-fade-in">
+              <Modal 
+                show={isModalOpen} 
+                onClose={closeModal} 
+                title={modalContent.title}
+              >
+                {modalContent.content}
+              </Modal>
+
               <h1 className="text-5xl font-extrabold text-center mb-12" style={{ color: COLORS.blue }}>
                 Conference Agenda
               </h1>
